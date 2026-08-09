@@ -23,6 +23,7 @@ say () { printf '\n\033[1m%s\033[0m\n' "$1"; }
 }
 
 # ----------------------------------------------------------------- install
+FRESH_INSTALL=0
 if command -v claude >/dev/null 2>&1; then
   say "Claude Code is already installed — $(claude --version)"
 else
@@ -30,6 +31,7 @@ else
   # The native installer: a self-contained binary, no Node and no Homebrew
   # required, and it updates itself in the background afterwards.
   curl -fsSL https://claude.ai/install.sh | bash
+  FRESH_INSTALL=1
 fi
 
 # -------------------------------------------------------------------- PATH
@@ -71,6 +73,35 @@ esac
 # environment — which is why the closing message tells you to open a new
 # terminal.
 export PATH="$BIN_DIR:$PATH"
+
+# --------------------------------------------------------------- settings
+# Optional starter config: skip the permission prompts you would always
+# approve, while keeping a deny list for the ones you would not.
+#
+# Only written for a brand-new install. If Claude Code was already on this
+# machine, the person has their own way of working and we change nothing —
+# and we still never overwrite an existing settings.json.
+SETTINGS_DIR="$HOME/.claude"
+SETTINGS="$SETTINGS_DIR/settings.json"
+STARTER="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/settings.starter.json"
+
+if [[ $FRESH_INSTALL -eq 0 ]]; then
+  say "Existing Claude Code install — settings left alone"
+  echo "   You already had Claude Code, so your configuration is untouched."
+  echo "   If you ever want fewer permission prompts, have a look at:"
+  echo "       $STARTER"
+elif [[ -e "$SETTINGS" ]]; then
+  say "Found $SETTINGS already — leaving it untouched"
+elif [[ -f "$STARTER" ]]; then
+  mkdir -p "$SETTINGS_DIR"
+  cp "$STARTER" "$SETTINGS"
+  say "Installed starter settings to ~/.claude/settings.json"
+  echo "   Permission prompts are skipped by default, with a deny list for"
+  echo "   destructive commands. Read it — and know its limits: deny rules are"
+  echo "   string matches, so they catch accidents, not determined mistakes."
+  echo "   Your real safety net is git and backups."
+  echo "   Delete the file to go back to being asked about everything."
+fi
 
 # ------------------------------------------------------------------ verify
 say "Verifying"

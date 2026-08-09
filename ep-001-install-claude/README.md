@@ -126,24 +126,36 @@ source ~/.zshrc      # or just open a new terminal window
 
 ## Optional — fewer permission prompts
 
-Claude Code asks before it acts. That default is correct and most people should
-leave it alone.
+Claude Code asks before it acts. If you are new to it, leave that alone for a
+while: watching what it wants to do is how you learn what it does.
 
-If you use it constantly and the prompts wear thin, the way to change it is a
-settings file rather than a command-line flag. In `~/.claude/settings.json`:
+If you use it constantly, the prompts wear thin. `setup.sh` ships a starter
+config, [`settings.starter.json`](settings.starter.json), which skips prompts by
+default while keeping a deny list for destructive commands.
 
-```json
-{
-  "permissions": {
-    "defaultMode": "bypassPermissions"
-  }
-}
-```
+**It is only installed on a brand-new install.** If Claude Code was already on
+your machine when you ran the script, nothing is changed — you already have a
+way of working and it is not ours to override. Even on a fresh install, an
+existing `~/.claude/settings.json` is never overwritten.
 
-Be clear about what that does: Claude Code will then act without asking. A more
-considered setup pairs it with a `deny` list so specific dangerous patterns are
-still blocked — "skip the prompts I have already thought about" rather than
-"turn the safety off". Those are different things.
+To go back to being asked about everything, delete `~/.claude/settings.json`.
+
+### What a deny list is, and is not
+
+Worth being precise, because a long deny list creates a feeling of safety it
+cannot deliver.
+
+Deny rules are **string matches**. A rule blocking one spelling of a destructive
+command does not block its variants — different flag order, different quoting,
+or the same thing reached from another directory. They catch a mistyped command,
+not a determined one, and they are not a sandbox.
+
+The starter list is deliberately short and grouped by category: whole-disk
+erasure, home-directory deletion, raw disk writes, irreversible git operations,
+keychain dumps. A dozen rules you have read beat fifty you have not.
+
+Your real safety net is committed git history, backups, and — while
+experimenting — a virtual machine with a snapshot.
 
 ## Troubleshooting
 
