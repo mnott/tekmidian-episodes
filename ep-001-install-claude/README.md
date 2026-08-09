@@ -39,16 +39,24 @@ cat setup.sh
 ./setup.sh
 ```
 
-## 5. Verify
+## 5. Open a new terminal
+
+**Required.** `setup.sh` writes the PATH line to your shell config, but it
+cannot change the shell you ran it from — no script can change its parent's
+environment. Until you open a new terminal, `claude` will still say
+*command not found*.
+
+Open a new window (⌘N), or:
+
+```bash
+source ~/.zshrc
+```
+
+## 6. Verify and sign in
 
 ```bash
 claude --version
 claude doctor
-```
-
-## 6. Sign in
-
-```bash
 claude
 ```
 
@@ -106,12 +114,14 @@ It lands in:
 
 The commonest stumble, and it does not mean the install failed.
 
-`~/.local/bin` is not on the default macOS PATH. `setup.sh` adds it to your shell
-config and to the current session, so you should not hit this — but if you do,
-either open a new terminal or run:
+`~/.local/bin` is not on the default macOS PATH.
+
+`setup.sh` writes the line to your shell config, but **it cannot change the shell
+you ran it from** — a child process cannot modify its parent's environment. So
+this is expected, not a fault:
 
 ```bash
-export PATH="$HOME/.local/bin:$PATH"
+source ~/.zshrc      # or just open a new terminal window
 ```
 
 ## Optional — fewer permission prompts

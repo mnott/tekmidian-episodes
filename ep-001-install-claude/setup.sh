@@ -66,21 +66,37 @@ case "${SHELL:-}" in
           add_path_line "$HOME/.zshrc" ;;
 esac
 
-# Make it work in this shell too, so verification below succeeds without
-# opening a new terminal.
+# Only so the verification below can run. This CANNOT affect the shell you
+# started the script from — a child process cannot change its parent's
+# environment — which is why the closing message tells you to open a new
+# terminal.
 export PATH="$BIN_DIR:$PATH"
 
 # ------------------------------------------------------------------ verify
 say "Verifying"
 if command -v claude >/dev/null 2>&1; then
   claude --version
-  echo
-  echo "Done. Next:"
-  echo "  claude doctor   # diagnostics, if anything looks wrong"
-  echo "  claude          # start it, and sign in via the browser"
-  echo
-  echo "Claude Code needs a Pro, Max, Team, Enterprise or Console account."
-  echo "The free Claude.ai plan does not include it."
+  printf '\n\033[1m⚠  One more thing: open a NEW terminal window.\033[0m\n'
+  cat <<'EOS'
+
+   This script cannot change the PATH of the shell you launched it from —
+   no script can. The line has been written to your shell config, so a new
+   terminal will pick it up. In this one, `claude` will still say
+   "command not found".
+
+   Open a new terminal (Cmd-N), or run:
+
+       source ~/.zshrc
+
+   Then:
+
+       claude doctor   # diagnostics, if anything looks wrong
+       claude          # start it, and sign in via the browser
+
+   Claude Code needs a Pro, Max, Team, Enterprise or Console account.
+   The free Claude.ai plan does not include it.
+
+EOS
 else
   echo "claude is still not on PATH." >&2
   echo "Open a new terminal and try again, or run:" >&2
