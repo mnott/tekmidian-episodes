@@ -1,58 +1,34 @@
-# EP-001 — From a fresh Mac to a working Claude Code
+# EP-001 — Install Claude Code on a fresh Mac
 
-Companion to the video. Six commands, in order.
+Companion to the video. Two commands, about two minutes.
 
 **You need** a Claude **Pro, Max, Team, Enterprise or Console** account. The free
 Claude.ai plan does not include Claude Code.
 
+You do **not** need Node, Homebrew, Xcode or git. Nothing but a Mac and `curl`,
+which macOS already has.
+
 ---
 
-## 1. Install the developer tools
+## 1. Install
 
 ```bash
-xcode-select --install
+curl -fsSL https://claude.ai/install.sh | bash
 ```
 
-A dialog appears. Confirm it and accept the licence. It takes about **12 minutes**
-and downloads roughly a gigabyte.
+## 2. Open a new terminal
 
-If you already have them you will see `command line tools are already installed`.
-That is fine — carry on.
-
-## 2. Check git works
+**Required.** The installer puts `claude` in `~/.local/bin`, which is not on the
+default macOS PATH, and it does not edit your shell config for you. It prints a
+note telling you to do it:
 
 ```bash
-git --version
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 ```
 
-## 3. Get this repository
+Then open a new terminal window, or `source ~/.zshrc`.
 
-```bash
-git clone https://github.com/mnott/tekmidian-episodes
-cd tekmidian-episodes/ep-001-install-claude
-```
-
-## 4. Read the script, then run it
-
-```bash
-cat setup.sh
-./setup.sh
-```
-
-## 5. Open a new terminal
-
-**Required.** `setup.sh` writes the PATH line to your shell config, but it
-cannot change the shell you ran it from — no script can change its parent's
-environment. Until you open a new terminal, `claude` will still say
-*command not found*.
-
-Open a new window (⌘N), or:
-
-```bash
-source ~/.zshrc
-```
-
-## 6. Verify and sign in
+## 3. Verify and sign in
 
 ```bash
 claude --version
@@ -60,41 +36,11 @@ claude doctor
 claude
 ```
 
+`claude` opens a browser to sign in. That is the whole installation.
+
 ---
 
-## Why the developer tools first?
-
-You need git, and on a clean Mac git does not really exist yet.
-
-`/usr/bin/git` is on every Mac, so checking for it *looks* like success — but it
-is a stub. It is the `xcrun` shim whose only job is to offer to install the real
-tools. Run it and you get a dialog, not a version.
-
-To check without triggering anything:
-
-```bash
-xcode-select -p
-```
-
-That reports the active developer directory, which either the Command Line Tools
-or full Xcode provides. On a machine with neither it fails with:
-
-```
-xcode-select: error: Unable to get active developer directory.
-Use `sudo xcode-select --switch path/to/Xcode.app` to set one
-```
-
-**Ignore that suggestion.** It is meant for machines that have Xcode installed
-but pointed somewhere odd. On a fresh Mac it leads nowhere. Run
-`xcode-select --install` instead.
-
 ## Why this installer, and not npm or Homebrew?
-
-`setup.sh` uses Anthropic's official native installer:
-
-```bash
-curl -fsSL https://claude.ai/install.sh | bash
-```
 
 - **No Node needed.** The npm route means installing Node first — another
   download, another concept, and the global-install permission trap.
@@ -114,15 +60,35 @@ It lands in:
 
 The commonest stumble, and it does not mean the install failed.
 
-`~/.local/bin` is not on the default macOS PATH.
-
-`setup.sh` writes the line to your shell config, but **it cannot change the shell
-you ran it from** — a child process cannot modify its parent's environment. So
-this is expected, not a fault:
+`~/.local/bin` is not on the default macOS PATH, and **a script cannot change
+the PATH of the shell you launched it from** — no script can modify its parent's
+environment. So this is expected:
 
 ```bash
 source ~/.zshrc      # or just open a new terminal window
 ```
+
+## `claude doctor`
+
+Read-only diagnostics: install health, settings problems, warnings with
+suggested fixes. It is what to run when something looks wrong, and almost nobody
+discovers it exists.
+
+---
+
+## Optional — the script
+
+If you already have git, everything above is also in `setup.sh`, which adds one
+thing: it writes the PATH line for you, creating `~/.zshrc` if you do not have
+one (a clean Mac does not).
+
+```bash
+cat setup.sh
+./setup.sh
+```
+
+Read it first. That is worth doing with any script you find on the internet, and
+these are kept short enough that reading them is quick.
 
 ## Optional — fewer permission prompts
 
@@ -157,15 +123,20 @@ keychain dumps. A dozen rules you have read beat fifty you have not.
 Your real safety net is committed git history, backups, and — while
 experimenting — a virtual machine with a snapshot.
 
+---
+
 ## Troubleshooting
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `claude: command not found` after installing | `~/.local/bin` not on PATH | New terminal, or `export PATH="$HOME/.local/bin:$PATH"` |
-| `unable to get active developer directory` | Developer tools missing | Step 1 |
-| `git --version` opens a dialog | `/usr/bin/git` is the stub | Step 1 |
-| `command line tools are already installed` | They are | Nothing — continue |
+| `claude: command not found` after installing | `~/.local/bin` not on PATH | New terminal, or `source ~/.zshrc` |
 | Sign-in fails or loops | Free Claude.ai plan | Needs Pro, Max, Team, Enterprise or Console |
+| `claude doctor` reports a launcher it did not create | A custom `~/.local/bin/claude` | Remove it and run `claude update` |
+
+## Next
+
+[EP-002](../ep-002-install-pai) gives Claude Code a memory that survives
+restarts — and that one does need developer tools, git and Docker.
 
 ## Reference
 

@@ -14,7 +14,8 @@ cd tekmidian-episodes
 
 | # | Episode | Directory |
 |---|---|---|
-| 001 | From a fresh Mac to a working Claude Code | [`ep-001-install-claude`](ep-001-install-claude) |
+| 001 | Install Claude Code on a fresh Mac | [`ep-001-install-claude`](ep-001-install-claude) |
+| 002 | Give Claude Code a memory (PAI) | [`ep-002-install-pai`](ep-002-install-pai) |
 
 ## Read before you run
 
