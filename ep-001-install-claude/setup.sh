@@ -41,7 +41,9 @@ fi
 # duplicate would be untidy rather than harmful.
 add_path_line () {
   local rc="$1"
-  [[ -f "$rc" ]] || return 0
+  # Do not skip a missing file. A clean macOS install has no ~/.zshrc at all,
+  # so "the file isn't there" is the normal case here, not an edge case.
+  [[ -e "$rc" ]] || touch "$rc"
   if grep -q '\.local/bin' "$rc" 2>/dev/null; then
     say "PATH already configured in ${rc/#$HOME/\~}"
   else
@@ -50,11 +52,17 @@ add_path_line () {
   fi
 }
 
+# $SHELL is the login shell, which is the one whose config we want to change —
+# even if this script itself was started with `bash setup.sh`.
 case "${SHELL:-}" in
   */zsh)  add_path_line "$HOME/.zshrc" ;;
   */bash) add_path_line "$HOME/.bash_profile" ;;
-  *)      say "Unrecognised shell (${SHELL:-unset}) — add this to your shell config:"
-          echo "  $PATH_LINE" ;;
+  */fish) say "fish detected. Add this to ~/.config/fish/config.fish:"
+          echo "  fish_add_path \$HOME/.local/bin" ;;
+  *)      # zsh has been the macOS default since Catalina, so it is the sane
+          # fallback when $SHELL is unset or unfamiliar.
+          say "Unrecognised shell (${SHELL:-unset}) — assuming zsh"
+          add_path_line "$HOME/.zshrc" ;;
 esac
 
 # Make it work in this shell too, so verification below succeeds without
