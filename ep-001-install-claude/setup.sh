@@ -44,11 +44,12 @@ add_path_line () {
   # Do not skip a missing file. A clean macOS install has no ~/.zshrc at all,
   # so "the file isn't there" is the normal case here, not an edge case.
   [[ -e "$rc" ]] || touch "$rc"
+  local disp="~${rc#$HOME}"
   if grep -q '\.local/bin' "$rc" 2>/dev/null; then
-    say "PATH already configured in ${rc/#$HOME/\~}"
+    say "PATH already configured in $disp"
   else
     printf '\n# Claude Code\n%s\n' "$PATH_LINE" >> "$rc"
-    say "Added ~/.local/bin to PATH in ${rc/#$HOME/\~}"
+    say "Added ~/.local/bin to PATH in $disp"
   fi
 }
 
